@@ -1,0 +1,129 @@
+/*
+과제 2
+하노이 탑의 최소 이동 횟수를 출력하는 프로그램
+기둥의 갯수는 3개, 4개, 5개를 선택할 수 있다.
+자료형의 크기 8바이트로 함
+*/
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+unsigned __int64 hanoi3(int n);
+unsigned __int64 hanoi4(int n);
+unsigned __int64 hanoi5(int n);
+unsigned __int64* arr3 = NULL;
+unsigned __int64* arr4 = NULL;
+unsigned __int64* arr5 = NULL;
+unsigned __int64 findMin(unsigned __int64* arr, int size);
+
+int main()
+{
+	int peg, disk;
+	unsigned __int64 min;
+	printf("기둥의 갯수를 입력하시오(3 or 4 or 5): ");
+	scanf("%d", &peg);
+	do{
+		printf("원반의 갯수를 입력하시오(1 이상): ");
+		scanf("%d", &disk);
+	} while (disk < 1);
+
+	arr3 = (unsigned __int64 *)malloc(sizeof(unsigned __int64) * disk);
+	memset(arr3, 0, sizeof(unsigned __int64) * disk);
+	switch (peg){
+	case 3:
+		min = hanoi3(disk);
+		break;
+	case 4:
+		arr4 = (unsigned __int64 *)malloc(sizeof(unsigned __int64) * disk);
+		memset(arr4, 0, sizeof(unsigned __int64) * disk);
+		min = hanoi4(disk);
+		break;
+	case 5:
+		arr4 = (unsigned __int64 *)malloc(sizeof(unsigned __int64) * disk);
+		memset(arr4, 0, sizeof(unsigned __int64) * disk);
+		arr5 = (unsigned __int64 *)malloc(sizeof(unsigned __int64) * disk);
+		memset(arr5, 0, sizeof(unsigned __int64) * disk);
+		min = hanoi5(disk);
+		break;
+	default:
+		printf("에러입니다.\n");
+		return -1;
+	}
+	free(arr3);
+	free(arr4);
+	free(arr5);
+	printf("최소 이동 횟수: %I64u\n", min);
+
+	return 0;
+}
+
+
+unsigned __int64 hanoi5(int n)
+{
+	int i;
+	unsigned __int64 min, cnt = 0;
+	unsigned __int64 * minArr;
+	if (arr5[n - 1]) return arr5[n - 1];
+	minArr = (unsigned __int64 *)malloc(sizeof(unsigned __int64)*(n - 1));
+	if (n == 1){
+		cnt++;
+		return cnt;
+	}
+	else{
+		for (i = 1; i <= n - 1; i++){
+			cnt = 0;
+			cnt += 2 * hanoi5(i) + hanoi4(n - i);
+			minArr[i - 1] = cnt;
+		}
+		min = findMin(minArr, n - 1);
+	}
+	arr5[n - 1] = min;
+	return min;
+}
+unsigned __int64 hanoi4(int n)
+{
+	int i;
+	unsigned __int64 min, cnt = 0;
+	unsigned __int64* minArr;
+	if (arr4[n - 1]) return arr4[n - 1];
+	minArr = (unsigned __int64*)malloc(sizeof(unsigned __int64)*(n - 1));
+
+	if (n == 1){
+		cnt++;
+		min = cnt;
+	}
+	else{
+		for (i = 1; i <= n - 1; i++){
+			cnt = 0;
+			cnt += 2 * hanoi4(i) + hanoi3(n - i);
+			minArr[i - 1] = cnt;
+		}
+		min = findMin(minArr, n - 1);
+	}
+	free(minArr);
+	arr4[n - 1] = min;
+	return min;
+}
+unsigned __int64 hanoi3(int n)
+{
+	unsigned __int64 cnt = 0;
+	if (arr3[n - 1]) return arr3[n - 1];
+	if (n == 1)	cnt++;
+	else
+		cnt += 2 * hanoi3(n - 1) + 1;
+	arr3[n - 1] = cnt;
+	return cnt;
+}
+
+unsigned __int64 findMin(unsigned __int64* arr, int size)
+{
+	unsigned __int64 min;
+	int i;
+	min = arr[0];
+	for (i = 1; i <= size - 1; i++)	{
+		if (min > arr[i])
+			min = arr[i];
+	}
+	return min;
+}
